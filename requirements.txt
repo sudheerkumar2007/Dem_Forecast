@@ -3,3 +3,5 @@ numpy
 tqdm
 plotly
 sklearn-pandas
+matplotlib
+statsmodels
