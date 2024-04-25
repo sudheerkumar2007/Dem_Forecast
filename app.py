@@ -62,7 +62,7 @@ def display_data(p_df, date1, date2):
         df_width = numcols +1
         st.write("Your Data looks like this:")
         #st.markdown(df.style.hide(axis="index").to_html(), unsafe_allow_html=True)
-        return st.dataframe(df1,hide_index=True,use_container_width = True,height = df_height, width = df_width)
+        return st.dataframe(df1,use_container_width = True,height = df_height, width = df_width)#hide_index=True,
 
 def forecast_data(df):
     product_list = list(df['str_sku_id'].unique())
