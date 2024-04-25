@@ -181,13 +181,13 @@ def main():
                         f_cast = forecast_data(p_df)
                         m_numRows = f_cast.shape[0]
                         st.write("Forecast is complete. Your output format is here. You can visualize the output now.")
-                        st.dataframe(f_cast.head(10),hide_index=True)#,height =(m_numRows + 1) * 35 + 3
+                        st.dataframe(f_cast.head(10))#,height =(m_numRows + 1) * 35 + 3,hide_index=True
                         st.session_state.forecast_completed = "True"
                         st.session_state.Model_output = f_cast
                     else:
                         st.write("Forecast is already complete. Here is the sample output. It is ready to visualize")
                         f_cast = st.session_state.Model_output
-                        st.dataframe(f_cast.head(10),hide_index=True)
+                        st.dataframe(f_cast.head(10))#,hide_index=True
 
                 #Visualizing output
                 if visualize_op_button or st.session_state.visualize:
