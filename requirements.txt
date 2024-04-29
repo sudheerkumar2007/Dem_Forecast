@@ -5,3 +5,4 @@ plotly
 sklearn-pandas
 matplotlib
 statsmodels
+streamlit_option_menu
