@@ -1,11 +1,10 @@
 import pandas as pd
 import streamlit as st
-import plotly.express as px
+
 from tqdm import tqdm
 #from modelling import model_fit
 from streamlit_option_menu import option_menu
-import Forecast
-#,Visualize
+import Forecast,Visualize
 import numpy as np
 import matplotlib.pyplot as plt
 from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
@@ -43,6 +42,9 @@ def run():
     elif app == "Forecast":
         if "p_df" in st.session_state:
             Forecast.app(st.session_state.p_df)
+    elif app == "Visualize":
+        #if "model_output" in st.session_state:
+        Visualize.app()#st.session_state.model_output
 
 def get_processed_df(df):
     df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"])
@@ -91,12 +93,7 @@ def fill_nans2(df, columns_to_fill):
         df[col].fillna(method='bfill', inplace=True)
     return df
 
-def draw_linechart(df):
-    linechart = pd.DataFrame(df.groupby(df["ActualSaleDate"])[["QtySold","Pred"]].sum()).reset_index()
-    fig2 = px.line(linechart, x = "ActualSaleDate", y=["QtySold","Pred"], labels = {"value": "Qty","SKU":"ProductID"},height=500, width = 1000,template="gridon")#hover_data=[linechart["ProductID"],linechart[ "StoreID"]]
-    #fig2 = fig2.update_traces(hovertemplate=df["ProductID"])
-    #st.plotly_chart(fig2,use_container_width=True)
-    return fig2
+
 
 def home(file):
     if "Process_state" not in st.session_state:
