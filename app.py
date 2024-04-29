@@ -4,7 +4,7 @@ import streamlit as st
 from tqdm import tqdm
 #from modelling import model_fit
 from streamlit_option_menu import option_menu
-import Forecast,Visualize
+import Forecast,Visualize,Predict
 import numpy as np
 import matplotlib.pyplot as plt
 from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
@@ -33,6 +33,9 @@ def run():
     "icon": {"color": "white", "font-size": "23px"}, 
     "nav-link": {"color":"white","font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "blue"},
     "nav-link-selected": {"background-color": "#02ab21"},})
+
+    forecast_template = pd.read_csv("DemandForecast_template.csv")    
+    st.sidebar.download_button(label="Click to download a forecast template",data=forecast_template,file_name='forecast_template.csv',mime='text/csv')
         
     st.sidebar.subheader("Your dataset")
     file = st.sidebar.file_uploader("Upload your document here", type={"csv"})
@@ -45,6 +48,8 @@ def run():
     elif app == "Visualize":
         #if "model_output" in st.session_state:
         Visualize.app()#st.session_state.model_output
+    elif app == "Predict":
+        Predict.app(st.session_state.p_df)
 
 def get_processed_df(df):
     df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"])
