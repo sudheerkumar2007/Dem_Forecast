@@ -34,8 +34,9 @@ def run():
     "nav-link": {"color":"white","font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "blue"},
     "nav-link-selected": {"background-color": "#02ab21"},})
 
-    forecast_template = pd.read_csv("DemandForecast_template.csv")    
-    st.sidebar.download_button(label="Click to download a forecast template",data=forecast_template,file_name='forecast_template.csv',mime='text/csv')
+    forecast_template = pd.read_csv("DemandForecast_template.csv")  
+    forecast_template_str = forecast_template.to_csv(index=False)  
+    st.sidebar.download_button(label="Click to download a forecast template",data=forecast_template_str,file_name='forecast_template.csv',mime='text/csv')
         
     st.sidebar.subheader("Your dataset")
     file = st.sidebar.file_uploader("Upload your document here", type={"csv"})
