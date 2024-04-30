@@ -8,7 +8,7 @@ def forecast_data(df):
     product_list = list(df['str_sku_id'].unique())
     grouped_data = df.groupby('str_sku_id')
     # Create a list of DataFrames using dictionary comprehension
-    data_groups = [group_df.copy() for _, group_df in grouped_data]
+    #data_groups = [group_df.copy() for _, group_df in grouped_data]
     with st.spinner("Running model..."):
         # Display progress bar
         progress_bar = st.progress(0)
@@ -17,20 +17,20 @@ def forecast_data(df):
         for i,product in enumerate(product_list):
             product_data = df[df['str_sku_id'] == product]
 
-            try:
-                product_data = model_fit(product_data)
-                model_output.append(product_data)
+            #try:
+            product_data = model_fit(product_data)
+            model_output.append(product_data)
 
-            except Exception as e:
-                st.error(f"Error processing product {product}: {str(e)}")
-                continue
+            #except Exception as e:
+            #    st.error(f"Error processing product {product}: {str(e)}")
+            #    continue
 
             # Update progress bar
             progress_bar.progress((i + 1) / len(product_list))
             progress_text.text(f"Progress: {i + 1} / {len(product_list)} products processed")
 
         #model_output = pd.concat(model_output, ignore_index=True)
-        model_output = pd.DataFrame(model_output)
+        model_output = pd.DataFrame(model_output[0])
         st.session_state.Model_output = model_output
         print(model_output.columns)
         #model_output['MAPE'] = model_output['MAPE'].replace([np.inf, -np.inf], 100)
