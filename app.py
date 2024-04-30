@@ -25,7 +25,7 @@ def run():
     with st.sidebar:        
         app = option_menu(
             menu_title='Pick your option',
-            options=['Home','Forecast','Visualize','Predict','Chat']
+            options=['Home','Forecast','Visualize','Predict','Chat'],
             menu_icon='chat-text-fill',
             default_index=1,
             styles={
