@@ -57,6 +57,7 @@ def get_processed_df(df):
     df['Holiday'] = df['ActualSaleDate'].isin(holidays)
     df['Holiday'] = df['Holiday'].astype(int)
     df['Season'] = df['ActualSaleDate'].apply(map_to_season)
+    df['str_sku_id'] = df['StoreID'].astype(str)+'-'+df['ProductID'].astype(str)
     df_encoded = pd.get_dummies(df, columns=['Holiday', 'Day_of_week','Season'],prefix=['Holiday', 'Day_of_week','Season'], prefix_sep='_')
     columns_to_fill = ['storeCity', 'storeState', 'StoreZip5']
     df_encoded = fill_nans2(df_encoded, columns_to_fill)
