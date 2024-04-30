@@ -29,7 +29,8 @@ def forecast_data(df):
             progress_bar.progress((i + 1) / len(product_list))
             progress_text.text(f"Progress: {i + 1} / {len(product_list)} products processed")
 
-        model_output = pd.concat(model_output, ignore_index=True)
+        #model_output = pd.concat(model_output, ignore_index=True)
+        model_output = pd.DataFrame(model_output)
         st.session_state.Model_output = model_output
         model_output['WMAPE'] = model_output['WMAPE'].replace([np.inf, -np.inf], 100)
         model_output['Model'] = 'RF_with_Season_No_invmorn_previnv_outliers_removed'
