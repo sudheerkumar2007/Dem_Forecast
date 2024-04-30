@@ -19,7 +19,7 @@ def forecast_data(df):
             product_data = df[df['str_sku_id'] == product]
 
             #try:
-            product_data = model_fit(product_data)
+            product_data = model_fit(product_data,end_date)
             model_output.append(product_data)
 
             #except Exception as e:
