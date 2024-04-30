@@ -32,6 +32,7 @@ def forecast_data(df):
         #model_output = pd.concat(model_output, ignore_index=True)
         model_output = pd.DataFrame(model_output)
         st.session_state.Model_output = model_output
+        print(model_output.columns)
         model_output['MAPE'] = model_output['MAPE'].replace([np.inf, -np.inf], 100)
         #model_output['Model'] = 'RF_with_Season_No_invmorn_previnv_outliers_removed'
         return model_output
