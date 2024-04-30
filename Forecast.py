@@ -2,11 +2,12 @@ import streamlit as st
 from modelling import model_fit
 import pandas as pd
 import numpy as np
-#from app import get_processed_df
+from dateutil.relativedelta import relativedelta
 
 def forecast_data(df):
     product_list = list(df['str_sku_id'].unique())
     grouped_data = df.groupby('str_sku_id')
+    end_date = np.max(df['ActualSaleDate'])-relativedelta(months=1)
     # Create a list of DataFrames using dictionary comprehension
     #data_groups = [group_df.copy() for _, group_df in grouped_data]
     with st.spinner("Running model..."):

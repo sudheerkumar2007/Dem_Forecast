@@ -2,8 +2,10 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+from dateutil.relativedelta import relativedelta
 
-end_date = pd.to_datetime('2022-06-30')
+#end_date = pd.to_datetime('2022-06-30')
+end_date = np.max(p_df['ActualSaleDate'])-relativedelta(months=1)
 
 def mape(actual, pred): 
     '''
