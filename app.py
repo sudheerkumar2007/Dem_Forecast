@@ -18,7 +18,7 @@ st.title(" :chart_with_upwards_trend: Business Demand Forecast")
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 
 def run():
-    forecast_template = pd.read_csv("DemandForecast_template.csv")  
+    forecast_template = pd.read_csv("DemandForecast_template.csv",format='ISO8601')  
     forecast_template_str = forecast_template.to_csv(index=False)  
     st.sidebar.download_button(label="Click to download a forecast template",data=forecast_template_str,file_name='forecast_template.csv',mime='text/csv')
 
