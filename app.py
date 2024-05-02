@@ -50,7 +50,7 @@ def run():
     #    Predict.app(st.session_state.p_df)
 
 def get_processed_df(df):
-    df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"])#,format='%d-%m-%Y'
+    df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"],format='%m-%d-%Y')
     df['Day_of_week'] = df['ActualSaleDate'].dt.strftime('%A')
     cal = calendar()
     holidays = cal.holidays(start='2021-01-01', end='2022-12-31')
