@@ -38,7 +38,7 @@ def app():
             
             SKU_filter = st.multiselect("Pick your SKU", p_df1["ProductID"].unique())
             if not SKU_filter:
-                p_df2 = p_df1.copy()
+                p_df2 = p_df1[p_df1['Type']=='Test']
                 chart = draw_linechart(p_df2)
                 st.plotly_chart(chart,use_container_width=True)
             else:
