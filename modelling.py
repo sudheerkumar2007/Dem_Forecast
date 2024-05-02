@@ -48,10 +48,10 @@ def model_fit(chk,end_date):
         chk['Pred'].fillna(chk['QtySold'], inplace=True)
         mae = mean_absolute_error(label_test, pred)
         rmse = np.sqrt(mean_squared_error(label_test, pred['Predicted']))
-        #WMAPE = np.sum(abs(label_test-pred['Predicted'])) / np.sum(label_test)
+        WAPE = np.sum(abs(label_test-pred['Predicted'])) / np.sum(label_test)
         #np.mean(np.abs((label_test - pred['Predicted']) / label_test)) * 100
-        MAPE = mape(label_test,pred['Predicted'])
-        chk[['RMSE','MAE','MAPE']] = rmse,mae,MAPE
+        #MAPE = mape(label_test,pred['Predicted'])
+        chk[['RMSE','MAE','WAPE']] = rmse,mae,WAPE
         one_hot_columns = [col for col in chk.columns if col.startswith(('Day_of_week_', 'Holiday','Season_'))]
         chk['DAYOFWEEK_NM'] = (chk[[col for col in chk if col.startswith(('Day_of_week_'))]]==1).idxmax(1)
         chk['Holiday'] = (chk[[col for col in chk if col.startswith(('Holiday_'))]]==1).idxmax(1)
@@ -119,8 +119,8 @@ def model_fit_old(chk):
         chk['Pred'].fillna(chk['QtySold'], inplace=True)
         mae = mean_absolute_error(label_test, pred)
         rmse = np.sqrt(mean_squared_error(label_test, pred['Predicted']))
-        WMAPE = np.sum(abs(label_test-pred['Predicted'])) / np.sum(label_test)
-        chk[['RMSE','MAE','WMAPE']] = rmse,mae,WMAPE
+        WAPE = np.sum(abs(label_test-pred['Predicted'])) / np.sum(label_test)
+        chk[['RMSE','MAE','WAPE']] = rmse,mae,WAPE
         one_hot_columns = [col for col in chk.columns if col.startswith(('Day_of_week_', 'Holiday','Season_'))]
         chk['DAYOFWEEK_NM'] = (chk[[col for col in chk if col.startswith(('Day_of_week_'))]]==1).idxmax(1)
         chk['Holiday'] = (chk[[col for col in chk if col.startswith(('Holiday_'))]]==1).idxmax(1)
