@@ -16,9 +16,17 @@ def mape(actual, pred):
     actual, pred = np.array(actual), np.array(pred)
     return np.mean(np.abs((actual - pred) / actual)) * 100
     
-def model_fit(chk,end_date):
+def model_fit(chk):
+    #columns_to_fill = ['VendorID', 'VendorName', 'RetailerID', 'RetailerName']
+    #print(np.unique(chk['str_sku_id']))
+    #chk['Sales_7_Days_Lag'] = chk['proportion_sale'].shift(7)
     chk['Sales_7_Days_Lag'] = chk['QtySold'].shift(7)
+    #chk['Inv_EOD_7_Days_Lag'] = chk['Inv_eod'].shift(7)
+    #chk['Previousday_Morn_Inv'] = chk['Inv_morn'].shift(1)
+    #chk['Morn_Inv_7_Days_Lag'] = chk['Inv_morn'].shift(7)
+    #chk['Previousday_EOD_Inv'] = chk['Inv_eod'].shift(1)
     cols_selected = ['QtySold', 'Day_of_week_Friday', 'Day_of_week_Monday', 'Day_of_week_Saturday','Day_of_week_Sunday', 'Day_of_week_Thursday', 'Day_of_week_Tuesday','Day_of_week_Wednesday',  'Holiday_0', 'Holiday_1','Season_Autumn', 'Season_Spring', 'Season_Summer', 'Season_Winter','Sales_7_Days_Lag','Inv_Avail']#,'Previousday_EOD_Inv','Inv_morn','tavg', 'wspd',
+    #,'Inv_EOD_7_Days_Lag','Morn_Inv_7_Days_Lag'
     cols_to_drop = list(chk.columns[chk.isna().all()]) # finding columns that have all Nan values
     cols_selected = [col for col in cols_selected if col not in cols_to_drop] # removing columns that have all Nan values
     chk_train = chk[cols_selected][chk['ActualSaleDate']<=end_date]
@@ -34,6 +42,8 @@ def model_fit(chk,end_date):
     label_test = chk_test.pop("QtySold")
     
     if(chk_train.shape[0]>chk_test.shape[0]) :
+       #and (len(label_train>0)>3) and (len(label_test>0)>3))
+        #Model fitting
         np.random.seed(475)
         rf = RandomForestRegressor()
         mdl = rf.fit(chk_train,label_train)
@@ -49,7 +59,7 @@ def model_fit(chk,end_date):
         mae = mean_absolute_error(label_test, pred)
         rmse = np.sqrt(mean_squared_error(label_test, pred['Predicted']))
         WAPE = np.sum(abs(label_test-pred['Predicted'])) / np.sum(label_test)
-        #np.mean(np.abs((label_test - pred['Predicted']) / label_test)) * 100
+        np.mean(np.abs((label_test - pred['Predicted']) / label_test)) * 100
         #MAPE = mape(label_test,pred['Predicted'])
         chk[['RMSE','MAE','WAPE']] = rmse,mae,WAPE
         one_hot_columns = [col for col in chk.columns if col.startswith(('Day_of_week_', 'Holiday','Season_'))]
