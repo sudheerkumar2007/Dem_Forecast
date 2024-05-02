@@ -39,7 +39,7 @@ def fill_nans2(df, columns_to_fill):
     return df
 
 def get_processed_df(df):
-    df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"],format='%Y-%m-%d')
+    df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"],format='%d-%m-%Y')
     df['Day_of_week'] = df['ActualSaleDate'].dt.strftime('%A')
     cal = calendar()
     holidays = cal.holidays(start='2021-01-01', end='2022-12-31')
@@ -148,7 +148,7 @@ def main():
 
             #Preprocess the dataframe
             p_df = get_processed_df(df)
-            st.write("Preprocessing complete, You can view/Forecast data now")
+            #st.write("Preprocessing complete, You can view/Forecast data now")
 
             # Get min and max date 
             st.write("select start and end dates to view sample data")
@@ -166,7 +166,7 @@ def main():
                 with cl1:
                     view_data_button = st.button("View Data", key="display_data_button")
                 with cl2:
-                    Dashboard_button = st.button("Dashboard", key="Dashboard_button")
+                    Dashboard_button = st.button("Sales Dashboard", key="Dashboard_button")
                 with cl3:
                     forecast_button = st.button("Test", key="forecast_button")
                 #with cl3:
@@ -185,12 +185,12 @@ def main():
                     #st.session_state.forecast_state = True
                         f_cast = forecast_data(p_df)
                         m_numRows = f_cast.shape[0]
-                        st.write("Forecast is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output, you can visualize it now.")
+                        st.write("Forecast is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output")
                         st.dataframe(f_cast)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
                         st.session_state.forecast_completed = "True"
                         st.session_state.Model_output = f_cast
                     else:
-                        st.write("Forecast is already complete. It is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output, you can visualize it now.")
+                        st.write("Forecast is already complete. It is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output")
                         f_cast = st.session_state.Model_output
                         st.dataframe(f_cast)#,hide_index=True
 
