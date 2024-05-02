@@ -142,9 +142,11 @@ def main():
     st.sidebar.download_button(label="Download Sales data template",
                                data=forecast_template_str,
                                file_name='forecast_template.csv',
-                               mime='text/csv',
-                               style='background-color: #4CAF50; border: none; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px;')
+                               mime='text/csv')
 
+    
+
+    st.sidebar.write(button_html.format(label="Download Sales data template", data=forecast_template_str, file_name='forecast_template.csv'))
     st.sidebar.subheader("Your dataset")
     file = st.sidebar.file_uploader("upload your file here",type={"csv"})
 
