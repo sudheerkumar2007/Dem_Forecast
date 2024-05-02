@@ -102,7 +102,7 @@ def draw_linechart(df):
     fig2 = px.line(linechart, x = "ActualSaleDate", y=["QtySold","Pred"], labels = {"value": "Qty","SKU":"ProductID"},height=500, width = 1000)#,template="gridon",hover_data=[linechart["ProductID"],linechart[ "StoreID"]]
 
     # Adding mean lines to the chart
-    fig2.add_hline(y=mean_qty_sold, line_dash="dot", line_color="blue", annotation_text=f'Mean QtySold: {mean_qty_sold:.2f}', annotation_position="bottom right")
+    fig2.add_hline(y=mean_qty_sold, line_dash="dot", line_color="red", annotation_text=f'Mean QtySold: {mean_qty_sold:.2f}', annotation_position="bottom right")
     #fig2 = fig2.update_traces(hovertemplate=df["ProductID"])
     #st.plotly_chart(fig2,use_container_width=True)
     return fig2
