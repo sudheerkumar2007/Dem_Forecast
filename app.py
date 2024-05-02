@@ -138,7 +138,7 @@ def main():
     st.sidebar.download_button(label="Download Sales data template",data=forecast_template_str,file_name='forecast_template.csv',mime='text/csv')
 
     st.sidebar.subheader("Your dataset")
-    file = st.sidebar.file_uploader("upload your document here",type={"csv"})
+    file = st.sidebar.file_uploader("upload your file here",type={"csv"})
 
     if st.sidebar.button("Preprocess") or st.session_state.Next_state:
         st.session_state.Next_state = True
