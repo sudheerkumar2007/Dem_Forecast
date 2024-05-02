@@ -16,7 +16,7 @@ def mape(actual, pred):
     actual, pred = np.array(actual), np.array(pred)
     return np.mean(np.abs((actual - pred) / actual)) * 100
     
-def model_fit(chk):
+def model_fit(chk,end_date):
     #columns_to_fill = ['VendorID', 'VendorName', 'RetailerID', 'RetailerName']
     #print(np.unique(chk['str_sku_id']))
     #chk['Sales_7_Days_Lag'] = chk['proportion_sale'].shift(7)
