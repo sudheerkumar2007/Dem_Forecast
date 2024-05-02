@@ -51,6 +51,6 @@ def app(p_df):
             st.session_state.forecast_completed = "True"
             st.session_state.Model_output = f_cast
         else:
-            st.write("Forecast is already complete. Here is the output. It is ready to visualize")
+            st.write("Forecast is already complete. It is done by training the model on all except last 2 months data. Last 2 months of data is used to test the model. Here is the output, you can visualize it now.")
             f_cast = st.session_state.Model_output
             st.dataframe(f_cast,hide_index=True)
