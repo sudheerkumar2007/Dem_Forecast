@@ -40,13 +40,13 @@ def app():
             
             if not SKU_filter:
                 p_df2 = p_df1[p_df1['Type']=='Test']
-                accuracy = 100-((np.unique(p_df2['WAPE'])[0])*100)
+                accuracy = 100-((np.round(p_df2['WAPE'].unique()[0],2))*100)
                 st.write(f"Results displayed are {accuracy}% accurate")
                 chart = draw_linechart(p_df2)
                 st.plotly_chart(chart,use_container_width=True)
             else:
                 p_df2 =p_df1[p_df1["ProductID"].isin(SKU_filter)]
-                accuracy = 100-((np.unique(p_df2['WAPE'])[0])*100)
+                accuracy = 100-((np.round(p_df2['WAPE'].unique()[0],2))*100)
                 st.write(f"Results displayed are {accuracy}% accurate")
                 chart = draw_linechart(p_df2)
                 st.plotly_chart(chart,use_container_width=True)
