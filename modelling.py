@@ -32,7 +32,6 @@ def model_fit(chk,end_date):
     chk['Type'] = "Train"
     chk_train = chk[cols_selected][chk['ActualSaleDate']<=end_date]
     chk_test = chk[cols_selected][chk['ActualSaleDate']>end_date]
-    chk_test['Type'] = "Test"
 
     #Removing outliers and nans from train data
     chk_train.dropna(inplace=True)
@@ -57,6 +56,7 @@ def model_fit(chk,end_date):
         #Formatting the output and calculating performance metrics
         pred.index = chk_test.index
         chk.loc[chk.index.isin(pred.index),['Pred']] = pred['Predicted']
+        chk.loc[chk.index.isin(pred.index),['Type']] = "Test"
         chk['Pred'].fillna(chk['QtySold'], inplace=True)
         mae = mean_absolute_error(label_test, pred)
         rmse = np.sqrt(mean_squared_error(label_test, pred['Predicted']))
