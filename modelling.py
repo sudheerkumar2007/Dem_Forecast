@@ -29,8 +29,10 @@ def model_fit(chk,end_date):
     #,'Inv_EOD_7_Days_Lag','Morn_Inv_7_Days_Lag'
     cols_to_drop = list(chk.columns[chk.isna().all()]) # finding columns that have all Nan values
     cols_selected = [col for col in cols_selected if col not in cols_to_drop] # removing columns that have all Nan values
+    chk['Type'] = "Train"
     chk_train = chk[cols_selected][chk['ActualSaleDate']<=end_date]
     chk_test = chk[cols_selected][chk['ActualSaleDate']>end_date]
+    chk_test['Type'] = "Test"
 
     #Removing outliers and nans from train data
     chk_train.dropna(inplace=True)
