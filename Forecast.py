@@ -46,8 +46,8 @@ def app(p_df):
         #st.session_state.forecast_state = True
             f_cast = forecast_data(p_df)
             m_numRows = f_cast.shape[0]
-            st.write("Forecast is complete. Your output format is here. You can visualize the output now.")
-            st.dataframe(f_cast.head(10),hide_index=True)#,height =(m_numRows + 1) * 35 + 3
+            st.write("Forecast is done by training the model on all except last 2 months data. Last 2 months of data is used to test the model. Here is the output, you can visualize it now.")
+            st.dataframe(f_cast,hide_index=True)#,height =(m_numRows + 1) * 35 + 3
             st.session_state.forecast_completed = "True"
             st.session_state.Model_output = f_cast
         else:
