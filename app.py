@@ -139,7 +139,11 @@ def main():
 
     forecast_template = pd.read_csv("DemandForecast_template.csv")  
     forecast_template_str = forecast_template.to_csv(index=False)  
-    st.sidebar.download_button(label="Download Sales data template",data=forecast_template_str,file_name='forecast_template.csv',mime='text/csv')
+    st.sidebar.download_button(label="Download Sales data template",
+                               data=forecast_template_str,
+                               file_name='forecast_template.csv',
+                               mime='text/csv',
+                               style='background-color: #4CAF50; border: none; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; font-size: 16px;')
 
     st.sidebar.subheader("Your dataset")
     file = st.sidebar.file_uploader("upload your file here",type={"csv"})
