@@ -152,7 +152,7 @@ def main():
                         f_cast = t_cast[(t_cast['Type']=="Train") | (t_cast['Type']=="Test")]
                         m_numRows = f_cast.shape[0]
                         st.write("Forecast is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output")
-                        st.dataframe(t_cast)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+                        st.dataframe(f_cast)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
                         st.session_state.test_completed = "True"
                         st.session_state.Model_output = f_cast
                     else:
@@ -203,8 +203,9 @@ def main():
                         st.session_state.Forecast_state = "True"
                         print(p_df.shape)
                         t_cast = test_data(p_df)
-                        f_df = t_cast[t_cast['Type']=="Forecasted"]
-                        st.write("Here is the forecasted sales")
+                        cols = ['ActualSaleDate','DAYOFWEEK_NM','Season','StoreID','ProductID','storeCity','storeState','StoreZip5','Pred']
+                        f_df = t_cast[cols][t_cast['Type']=="Forecasted"]
+                        st.write("Here is the forecasted sales for next 7 days")
                         st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
                         st.session_state.f_op = f_cast
                         accuracy = 100-((np.round(f_df['WAPE'].unique()[0],2))*100)
