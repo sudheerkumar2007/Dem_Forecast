@@ -2,13 +2,9 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 from tqdm import tqdm
-from modelling import model_fit
+from modelling import model_fit,get_processed_df
 import numpy as np
 import matplotlib.pyplot as plt
-from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
-from statsmodels.tools.eval_measures import rmse
-from sklearn.metrics import mean_squared_error, mean_absolute_error,accuracy_score,r2_score
-from sklearn.ensemble import RandomForestRegressor
 from dateutil.relativedelta import relativedelta
 import warnings
 warnings.filterwarnings('ignore')
@@ -18,39 +14,6 @@ st.set_page_config(page_title="Demand Forecasting app",page_icon=":chart_with_up
 st.title(" :chart_with_upwards_trend: Business Demand Forecast")
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 
-def map_to_season(date):
-    if date.month in [3, 4, 5]:
-        return 'Spring'
-    elif date.month in [6, 7, 8]:
-        return 'Summer'
-    elif date.month in [9, 10, 11]:
-        return 'Autumn'
-    else:
-        return 'Winter'
-
-def fill_nans(df, columns_to_fill):
-    for col in columns_to_fill:
-        df[col].fillna(method='ffill', inplace=True)
-    return df
-
-def fill_nans2(df, columns_to_fill):
-    for col in columns_to_fill:
-        df[col].fillna(method='bfill', inplace=True)
-    return df
-
-def get_processed_df(df):
-    df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"],format='%d-%m-%Y')
-    df['Day_of_week'] = df['ActualSaleDate'].dt.strftime('%A')
-    cal = calendar()
-    holidays = cal.holidays(start='2021-01-01', end='2022-12-31')
-    df['Holiday'] = df['ActualSaleDate'].isin(holidays)
-    df['Holiday'] = df['Holiday'].astype(int)
-    df['Season'] = df['ActualSaleDate'].apply(map_to_season)
-    df['str_sku_id'] = df['StoreID'].astype(str)+'-'+df['ProductID'].astype(str)
-    df_encoded = pd.get_dummies(df, columns=['Holiday', 'Day_of_week','Season'],prefix=['Holiday', 'Day_of_week','Season'], prefix_sep='_')
-    columns_to_fill = ['storeCity', 'storeState', 'StoreZip5']
-    df_encoded = fill_nans2(df_encoded, columns_to_fill)
-    return df_encoded
 
 def display_data(p_df, date1, date2):
         df1 = p_df[(p_df["ActualSaleDate"] >= date1) & (p_df["ActualSaleDate"] <= date2)].copy().sort_values(by="ActualSaleDate")
@@ -62,10 +25,11 @@ def display_data(p_df, date1, date2):
         #st.markdown(df.style.hide(axis="index").to_html(), unsafe_allow_html=True)
         return st.dataframe(df1,use_container_width = True,height = df_height, width = df_width)#hide_index=True,
 
-def forecast_data(df):
+def test_data(df):
     product_list = list(df['str_sku_id'].unique())
     grouped_data = df.groupby('str_sku_id')
-    end_date = np.max(df['ActualSaleDate'])-relativedelta(months=1)
+    end_date = np.max(df['ActualSaleDate'])-relativedelta(days=29)
+    forecast_date = df['ActualSaleDate'].max() - relativedelta(days=6)
     # Create a list of DataFrames using dictionary comprehension
     #data_groups = [group_df.copy() for _, group_df in grouped_data]
     with st.spinner("Running model..."):
@@ -77,7 +41,7 @@ def forecast_data(df):
             product_data = df[df['str_sku_id'] == product]
 
             #try:
-            product_data = model_fit(product_data,end_date)
+            product_data = model_fit(product_data,end_date,forecast_date)
             model_output.append(product_data)
 
             #except Exception as e:
@@ -91,7 +55,7 @@ def forecast_data(df):
         #model_output = pd.concat(model_output, ignore_index=True)
         model_output = pd.DataFrame(model_output[0])
         st.session_state.Model_output = model_output
-        print(model_output.columns)
+        #print(model_output.columns)
         #model_output['MAPE'] = model_output['MAPE'].replace([np.inf, -np.inf], 100)
         #model_output['Model'] = 'RF_with_Season_No_invmorn_previnv_outliers_removed'
         return model_output
@@ -105,17 +69,7 @@ def draw_linechart(df):
     fig2.add_hline(y=mean_qty_sold, line_dash="dot", line_color="red", annotation_text=f'Mean QtySold: {mean_qty_sold:.2f}', annotation_position="bottom right")
     #fig2 = fig2.update_traces(hovertemplate=df["ProductID"])
     #st.plotly_chart(fig2,use_container_width=True)
-    return fig2
-
-def predict_data(df):
-    data = get_processed_df(df)
-    product_data = df[df['str_sku_id'] == product]
-    product_data = model_fit(product_data)
-    model_output = pd.concat(model_output, ignore_index=True)
-    #    st.session_state.Model_output = model_output
-    model_output['WMAPE'] = model_output['WMAPE'].replace([np.inf, -np.inf], 100)
-    model_output['Model'] = 'RF_with_Season_No_invmorn_previnv_outliers_removed'
-    return model_output
+    return fig2  
 
 def main():
     if "Next_state" not in st.session_state:
@@ -128,8 +82,12 @@ def main():
         st.session_state.date1 = None
     if "date2" not in st.session_state:
         st.session_state.date2 = None
-    if "forecast_completed" not in st.session_state:
-        st.session_state.forecast_completed = False
+    if "test_completed" not in st.session_state:
+        st.session_state.test_completed = False
+    if "Forecast_state" not in st.session_state:
+        st.session_state.Forecast_state = False
+    if "Test_button_state" not in st.session_state:
+        st.session_state.Test_button_state = False
     if "Model_output" not in st.session_state:
         st.session_state.Model_output = None
     if "visualize" not in st.session_state:
@@ -142,9 +100,7 @@ def main():
     st.sidebar.download_button(label="Download Sales data template",
                                data=forecast_template_str,
                                file_name='forecast_template.csv',
-                               mime='text/csv')
-
-    
+                               mime='text/csv')    
 
     #st.sidebar.write(button_html.format(label="Download Sales data template", data=forecast_template_str, file_name='forecast_template.csv'))
     st.sidebar.subheader("Your dataset")
@@ -155,7 +111,6 @@ def main():
         with st.spinner("processing"):
             #Read the data
             df = pd.read_csv(file)
-
             #Preprocess the dataframe
             p_df = get_processed_df(df)
             #st.write("Preprocessing complete, You can view/Forecast data now")
@@ -178,7 +133,7 @@ def main():
                 with cl2:
                     Dashboard_button = st.button("Sales Dashboard", key="Dashboard_button")
                 with cl3:
-                    forecast_button = st.button("Test", key="forecast_button")
+                    Test_button = st.button("Test", key="Test_button")
                 #with cl3:
                 #    visualize_op_button = st.button("Visualize output",key = "visualize_op_button")
                 #with cl4:
@@ -190,14 +145,15 @@ def main():
                         display_data(p_df,st.session_state.date1,st.session_state.date2)
 
                 #Forecasting
-                if forecast_button :
+                if Test_button or st.session_state.Test_button_state:
                     if st.session_state.Model_output is None:
-                    #st.session_state.forecast_state = True
-                        f_cast = forecast_data(p_df)
+                        st.session_state.Test_button_state = True
+                        t_cast = test_data(p_df)
+                        f_cast = t_cast[(t_cast['Type']=="Train") | (t_cast['Type']=="Test")]
                         m_numRows = f_cast.shape[0]
                         st.write("Forecast is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output")
                         st.dataframe(f_cast)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
-                        st.session_state.forecast_completed = "True"
+                        st.session_state.test_completed = "True"
                         st.session_state.Model_output = f_cast
                     else:
                         st.write("Forecast is already complete. It is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output")
@@ -206,7 +162,7 @@ def main():
 
                 #Visualizing output
                 #if visualize_op_button or st.session_state.visualize:
-                    if not st.session_state.forecast_completed:
+                    if not st.session_state.test_completed:
                         st.write("Please Forecast the data to visualize output")
 
                     else:
@@ -233,35 +189,27 @@ def main():
                         if not SKU_filter:
                             p_df2 = p_df1[p_df1['Type']=='Test']
                             accuracy = 100-((np.round(p_df2['WAPE'].unique()[0],2))*100)
-                            st.write(f"Results displayed are {accuracy}% accurate")
+                            #st.write(f"Results displayed are {accuracy}% accurate")
                             chart = draw_linechart(p_df2)
                             st.plotly_chart(chart,use_container_width=True)
                         else:
                             p_df2 =p_df1[(p_df1["ProductID"].isin(SKU_filter)) & (p_df1['Type']=='Test')]
                             accuracy = 100-((np.round(p_df2['WAPE'].unique()[0],2))*100)
-                            st.write(f"Results displayed are {accuracy}% accurate")
+                            #st.write(f"Results displayed are {accuracy}% accurate")
                             chart = draw_linechart(p_df2)
                             st.plotly_chart(chart,use_container_width=True)
 
+                if st.sidebar.button("Forecast") or st.session_state.Forecast_state:
+                    st.session_state.Forecast_state = "True"
+                    print(p_df.shape)
+                    t_cast = test_data(p_df)
+                    f_df = t_cast[t_cast['Type']=="Forecasted"]
+                    st.write("Here is the forecasted sales")
+                    st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+                    st.session_state.f_op = f_cast
+                    accuracy = 100-((np.round(f_df['WAPE'].unique()[0],2))*100)
+                    st.write(f"Forecast done is {accuracy}% accurate")
 
-                #if predict_button or st.session_state.predict_state:
-                #    if not st.session_state.forecast_completed:
-                #        st.write("Please Forecast the data to Predict")
-                #    else:
-                #        with st.form(key="form1"):
-                #            StoreID = st.selectbox("Select your Store", p_df['StoreID'].unique())
-                #            ProductID = st.selectbox("Select your Store", p_df['ProductID'].unique())
-                #            ActualSaleDate = st.date_input("Date")
-                #            filtered_p_df = p_df[(p_df['StoreID']==StoreID) & (p_df["ProductID"]==ProductID)]
-                #            Sale_lw = st.selectbox("Units sold a week before",filtered_p_df['QtySold'].unique())
-                #            Inv_eod = st.number_input("Inventory in Presentation")
-
-                #            submit_button = st.form_submit_button(label = 'Predict')
-                #        if submit_button:
-                #            with st.beta_expander("Results"):
-                #                pred_df = pd.DataFrame({})
-
-                    #st.session_state.visualize = False
-                    #st.session_state.predict_state = True
+    
 if __name__ == '__main__':
 	main()
