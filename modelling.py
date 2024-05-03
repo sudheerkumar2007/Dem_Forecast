@@ -133,7 +133,7 @@ def model_fit(chk,end_date,forecast_date):
         chk.loc[chk.index.isin(pred.index),['Pred']] = pred['Predicted']
         chk.loc[chk.index.isin(pred.index),['Type']] = "Test"
         chk['Pred'].fillna(chk['QtySold'], inplace=True)
-        print(label_test)
+        #print(label_test)
         mae = mean_absolute_error(label_test, pred)
         rmse = np.sqrt(mean_squared_error(label_test, pred['Predicted']))
         WAPE = np.sum(abs(label_test-pred['Predicted'])) / np.sum(label_test)

@@ -94,6 +94,8 @@ def main():
         st.session_state.visualize = False
     if "predict" not in st.session_state:
         st.session_state.predict_state = False
+    if "t_cast" not in st.session_state:
+        st.session_state.tcast = None
 
     forecast_template = pd.read_csv("DemandForecast_template.csv")  
     forecast_template_str = forecast_template.to_csv(index=False)  
@@ -149,6 +151,7 @@ def main():
                     if st.session_state.Model_output is None:
                         st.session_state.Test_button_state = True
                         t_cast = test_data(p_df)
+                        st.session_state.tcast = t_cast
                         f_cast = t_cast[(t_cast['Type']=="Train") | (t_cast['Type']=="Test")]
                         m_numRows = f_cast.shape[0]
                         st.write("Forecast is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output")
@@ -199,17 +202,18 @@ def main():
                             chart = draw_linechart(p_df2)
                             st.plotly_chart(chart,use_container_width=True)
 
-                    if st.sidebar.button("Forecast") or st.session_state.Forecast_state:
-                        st.session_state.Forecast_state = "True"
-                        print(p_df.shape)
-                        t_cast = test_data(p_df)
-                        cols = ['ActualSaleDate','DAYOFWEEK_NM','Season','StoreID','ProductID','storeCity','storeState','StoreZip5','Pred']
-                        f_df = t_cast[cols][t_cast['Type']=="Forecasted"].rename(columns={"Pred":"Predicted_Sale_Qty"})
-                        st.write("Here is the forecasted sale for next 7 days")
-                        st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
-                        st.session_state.f_op = f_cast
-                        accuracy = 100-((np.round(t_cast['WAPE'].unique()[0],2))*100)
-                        st.write(f"Forecast done is {accuracy}% accurate")
+            if st.sidebar.button("Forecast") or st.session_state.Forecast_state:
+                st.session_state.Forecast_state = "True"
+                st.session_state.Next_state = "False"
+                #print(p_df.shape)
+                #t_cast = test_data(p_df)
+                cols = ['ActualSaleDate','DAYOFWEEK_NM','Season','StoreID','ProductID','storeCity','storeState','StoreZip5','Pred']
+                f_df = st.session_state.t_cast[cols][t_cast['Type']=="Forecasted"].rename(columns={"Pred":"Predicted_Sale_Qty"})
+                st.write("Here is the forecasted sale for next 7 days")
+                st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+                st.session_state.f_op = f_cast
+                accuracy = 100-((np.round(t_cast['WAPE'].unique()[0],2))*100)
+                st.write(f"Forecast done is {accuracy}% accurate")
 
     
 if __name__ == '__main__':
