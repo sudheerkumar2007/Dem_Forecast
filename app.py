@@ -208,7 +208,7 @@ def main():
                         st.write("Here is the forecasted sales for next 7 days")
                         st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
                         st.session_state.f_op = f_cast
-                        accuracy = 100-((np.round(f_df['WAPE'].unique()[0],2))*100)
+                        accuracy = 100-((np.round(t_cast['WAPE'].unique()[0],2))*100)
                         st.write(f"Forecast done is {accuracy}% accurate")
 
     
