@@ -206,9 +206,9 @@ def main():
                 st.session_state.Forecast_state = "True"
                 st.session_state.Next_state = "False"
                 #print(p_df.shape)
-                #t_cast = test_data(p_df)
+                t_cast = test_data(p_df)
                 cols = ['ActualSaleDate','DAYOFWEEK_NM','Season','StoreID','ProductID','storeCity','storeState','StoreZip5','Pred']
-                f_df = st.session_state.t_cast[cols][t_cast['Type']=="Forecasted"].rename(columns={"Pred":"Predicted_Sale_Qty"})
+                f_df = t_cast[cols][t_cast['Type']=="Forecasted"].rename(columns={"Pred":"Predicted_Sale_Qty"})
                 st.write("Here is the forecasted sale for next 7 days")
                 st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
                 st.session_state.f_op = f_cast
