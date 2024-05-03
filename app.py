@@ -152,7 +152,7 @@ def main():
                         f_cast = t_cast[(t_cast['Type']=="Train") | (t_cast['Type']=="Test")]
                         m_numRows = f_cast.shape[0]
                         st.write("Forecast is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output")
-                        st.dataframe(f_cast)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+                        st.dataframe(t_cast)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
                         st.session_state.test_completed = "True"
                         st.session_state.Model_output = f_cast
                     else:
@@ -199,16 +199,16 @@ def main():
                             chart = draw_linechart(p_df2)
                             st.plotly_chart(chart,use_container_width=True)
 
-                if st.sidebar.button("Forecast") or st.session_state.Forecast_state:
-                    st.session_state.Forecast_state = "True"
-                    print(p_df.shape)
-                    t_cast = test_data(p_df)
-                    f_df = t_cast[t_cast['Type']=="Forecasted"]
-                    st.write("Here is the forecasted sales")
-                    st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
-                    st.session_state.f_op = f_cast
-                    accuracy = 100-((np.round(f_df['WAPE'].unique()[0],2))*100)
-                    st.write(f"Forecast done is {accuracy}% accurate")
+                    if st.sidebar.button("Forecast") or st.session_state.Forecast_state:
+                        st.session_state.Forecast_state = "True"
+                        print(p_df.shape)
+                        t_cast = test_data(p_df)
+                        f_df = t_cast[t_cast['Type']=="Forecasted"]
+                        st.write("Here is the forecasted sales")
+                        st.dataframe(f_df)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+                        st.session_state.f_op = f_cast
+                        accuracy = 100-((np.round(f_df['WAPE'].unique()[0],2))*100)
+                        st.write(f"Forecast done is {accuracy}% accurate")
 
     
 if __name__ == '__main__':
