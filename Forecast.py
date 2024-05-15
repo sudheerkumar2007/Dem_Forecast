@@ -1,5 +1,5 @@
 import streamlit as st
-from modelling import model_fit
+import modelling
 import pandas as pd
 import numpy as np
 from dateutil.relativedelta import relativedelta
@@ -19,7 +19,7 @@ def forecast_data(df):
             product_data = df[df['str_sku_id'] == product]
 
             #try:
-            product_data = model_fit(product_data,end_date)
+            product_data = modelling.model_fit(product_data,end_date)
             model_output.append(product_data)
 
             #except Exception as e:
@@ -39,18 +39,29 @@ def forecast_data(df):
         return model_output
 
 
-def app(p_df):
-    forecast_button = st.button("Forecast", key="forecast_button")
-    if forecast_button :
-        if st.session_state.Model_output is None:
-        #st.session_state.forecast_state = True
-            f_cast = forecast_data(p_df)
-            m_numRows = f_cast.shape[0]
-            st.write("Forecast is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output, you can visualize it now.")
-            st.dataframe(f_cast,hide_index=True)#,height =(m_numRows + 1) * 35 + 3
-            st.session_state.forecast_completed = "True"
-            st.session_state.Model_output = f_cast
-        else:
-            st.write("Forecast is already complete. It is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model. Here is the output, you can visualize it now.")
-            f_cast = st.session_state.Model_output
-            st.dataframe(f_cast,hide_index=True)
+def app(df_sku,df_store):
+    #forecast_button = st.sidebar.button("Forecast", key="forecast_button")
+    #if forecast_button or st.session_state.forecast_state:
+        col1, col2 = st.columns((2))
+        with col1:
+            skuforecast_button = st.button("Store-SKU Level Forecast", key="skuforecast_button")
+        with col2:
+            storeforecast_button = st.button("Store Level Forecast", key="storeforecast_button")
+        if skuforecast_button:
+            cols = ['ActualSaleDate','DAYOFWEEK_NM','Season','StoreID','ProductID','storeCity','storeState','StoreZip5','Pred']
+            f_df_sku = df_sku[cols][df_sku['Type']=="Forecasted"].rename(columns={"Pred":"Predicted_Sale_Qty"})
+            st.markdown("Here is the forecasted sale for next 7 days at sttore-sku level")
+            st.dataframe(f_df_sku)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+            #st.session_state.f_op = f_cast
+            accuracy = 100-((np.round(df_sku['WAPE'].unique()[0],2)))
+            st.write(f"Forecast done is {accuracy}% accurate")
+
+        if storeforecast_button:
+            #t_cast_store = st.session_state.Model_output_store
+            cols = ['ActualSaleDate','DAYOFWEEK_NM','Season','StoreID','storeCity','storeState','StoreZip5','Pred']
+            f_df_store = df_store[cols][df_store['Type']=="Forecasted"].rename(columns={"Pred":"Predicted_Sale_Qty"})
+            st.markdown("Here is the forecasted sale for next 7 days at store level")
+            st.dataframe(f_df_store)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+            #st.session_state.f_op = f_cast
+            accuracy = 100-((np.round(df_store['MAPE'].unique()[0],2)))
+            st.write(f"Forecast done is {accuracy}% accurate")
