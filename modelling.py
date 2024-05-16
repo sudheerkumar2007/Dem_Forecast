@@ -53,9 +53,10 @@ def model_fit_SKU(chk,end_date,forecast_date):
     #columns_to_fill = ['VendorID', 'VendorName', 'RetailerID', 'RetailerName']
     #print(np.unique(chk['str_sku_id']))
     #chk['Sales_7_Days_Lag'] = chk['proportion_sale'].shift(7)
+
     chk['Sales_7_Days_Lag'] = chk['QtySold'].shift(7)
-    chk['Inv_Avail_7_Days_Lag'] = chk['Inv_Avail'].shift(7)
-    cols_selected = ['QtySold', 'Day_of_week_Friday', 'Day_of_week_Monday', 'Day_of_week_Saturday','Day_of_week_Sunday', 'Day_of_week_Thursday', 'Day_of_week_Tuesday','Day_of_week_Wednesday',  'Holiday_0', 'Holiday_1','Season_Autumn', 'Season_Spring', 'Season_Summer', 'Season_Winter','Sales_7_Days_Lag','Inv_Avail_7_Days_Lag']#,'Inv_Avail','Previousday_EOD_Inv','Inv_morn','tavg', 'wspd',
+    #chk['Inv_Avail_7_Days_Lag'] = chk['Inv_Avail'].shift(7)
+    cols_selected = ['QtySold', 'Day_of_week_Friday', 'Day_of_week_Monday', 'Day_of_week_Saturday','Day_of_week_Sunday', 'Day_of_week_Thursday', 'Day_of_week_Tuesday','Day_of_week_Wednesday',  'Holiday_0', 'Holiday_1','Season_Autumn', 'Season_Spring', 'Season_Summer', 'Season_Winter','Sales_7_Days_Lag']#,'Inv_Avail_7_Days_Lag','Inv_Avail','Previousday_EOD_Inv','Inv_morn','tavg', 'wspd',
     #,'Inv_EOD_7_Days_Lag','Morn_Inv_7_Days_Lag'
     cols_to_drop = list(chk.columns[chk.isna().all()]) # finding columns that have all Nan values
     cols_selected = [col for col in cols_selected if col not in cols_to_drop] # removing columns that have all Nan values
@@ -211,6 +212,7 @@ def test_data_sku(df):
     
 def test_data_store(df):
     store_list = list(df['StoreID'].unique())
+    #st.write(store_list)
     grouped_data = df.groupby('StoreID')
     with st.spinner("Running model..."):
         # Display progress bar
@@ -234,8 +236,8 @@ def test_data_store(df):
             progress_bar.progress((i + 1) / len(store_list))
             progress_text.text(f"Progress: {i + 1} / {len(store_list)} stores processed")
 
-        #Store_output = pd.concat(Store_output, ignore_index=True)
-        Store_output = pd.DataFrame(Store_output[0])
+        Store_output = pd.concat(Store_output, ignore_index=True)
+        #Store_output = pd.DataFrame(Store_output[0])
         st.session_state.Model_output_store = Store_output
         return Store_output
 def draw_linechart(df):

@@ -32,7 +32,7 @@ def run():
             menu_title='Process Flow',
             options=['Preprocess','Dashboard','Test','Forecast'],#,'Chat'
             #menu_icon='chat-text-fill',
-            default_index=1,
+            default_index=0,
             styles={
                 "container": {"padding": "5!important","background-color":'grey'},
     "icon": {"color": "white", "font-size": "23px"}, 
@@ -109,8 +109,8 @@ def process_data_store(df):
             progress_bar.progress((i + 1) / len(store_list))
             progress_text.text(f"Progress: {i + 1} / {len(store_list)} Stores data is preprocessed")
 
-        #Preprocessed_output = pd.concat(Preprocessed_output, ignore_index=True)
-        Preprocessed_output = pd.DataFrame(Preprocessed_output[0])
+        Preprocessed_output = pd.concat(Preprocessed_output, ignore_index=True)
+        #Preprocessed_output = pd.DataFrame(Preprocessed_output[0])
         #st.session_state.Model_output = Preprocessed_output
         #print(model_output.columns)
         return Preprocessed_output
@@ -135,7 +135,7 @@ def prepare_future_data_SKU(p_df,num_of_days):
     unique_dates = p_df['ActualSaleDate'].unique()
     sorted_dates = sorted(unique_dates, reverse=True)
     last_x_dates = sorted_dates[:num_of_days]
-    f_df = p_df[['StoreID','ProductID','Inv_Avail','storeCity','storeState','StoreZip5']][p_df['ActualSaleDate'].isin(last_x_dates)]
+    f_df = p_df[['StoreID','ProductID','storeCity','storeState','StoreZip5']][p_df['ActualSaleDate'].isin(last_x_dates)] #,'Inv_Avail'
     f_start_date = p_df['ActualSaleDate'].max() + relativedelta(days=1)
     f_end_date = p_df['ActualSaleDate'].max() + relativedelta(days=num_of_days)
     f_df['ActualSaleDate'] = pd.date_range(f_start_date,f_end_date)
@@ -222,7 +222,7 @@ def home(file):
     if "Test_state" not in st.session_state:
         st.session_state.Test_state = False        
 
-    if st.sidebar.button("Process") or st.session_state.Process_state :
+    if st.sidebar.button("Process") or st.session_state.Process_state:
         if file is not None:
             st.session_state.Process_state = True
             with st.spinner("Processing"):
