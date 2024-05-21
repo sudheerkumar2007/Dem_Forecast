@@ -242,7 +242,7 @@ def home(file):
                 good_working_skus = sku_sale['str_sku_id'][(sku_sale['sku_sale']>5) & (sku_sale['year'] == 2022) & (sku_sale['month'] ==9)].drop_duplicates()
                 #df_cnew1 = df_cnew[df_cnew['StoreID'].isin(good_working_stores)]
                 df = df[df['str_sku_id'].isin(good_working_skus)].drop(columns = ['str_sku_id','year','month'])
-                modified_end_date = df['ActualSaleDate'].max() - relativedelta(days=3)
+                modified_end_date = df['ActualSaleDate'].max() - relativedelta(days=7)
                 df = df [df['ActualSaleDate']<=modified_end_date]
                 
                 # Preprocess the dataframe
