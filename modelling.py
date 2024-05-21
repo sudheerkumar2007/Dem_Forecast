@@ -53,7 +53,6 @@ def model_fit_SKU(chk,end_date,forecast_date):
     #columns_to_fill = ['VendorID', 'VendorName', 'RetailerID', 'RetailerName']
     #print(np.unique(chk['str_sku_id']))
     #chk['Sales_7_Days_Lag'] = chk['proportion_sale'].shift(7)
-
     chk['Sales_7_Days_Lag'] = chk['QtySold'].shift(7)
     #chk['Inv_Avail_7_Days_Lag'] = chk['Inv_Avail'].shift(7)
     cols_selected = ['QtySold', 'Day_of_week_Friday', 'Day_of_week_Monday', 'Day_of_week_Saturday','Day_of_week_Sunday', 'Day_of_week_Thursday', 'Day_of_week_Tuesday','Day_of_week_Wednesday',  'Holiday_0', 'Holiday_1','Season_Autumn', 'Season_Spring', 'Season_Summer', 'Season_Winter','Sales_7_Days_Lag']#,'Inv_Avail_7_Days_Lag','Inv_Avail','Previousday_EOD_Inv','Inv_morn','tavg', 'wspd',
