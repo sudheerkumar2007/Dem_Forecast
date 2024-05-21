@@ -243,10 +243,10 @@ def test_data_store(df):
 def draw_linechart(df):
     linechart = pd.DataFrame(df.groupby(df["ActualSaleDate"])[["QtySold","Pred"]].sum()).reset_index()
     mean_qty_sold = linechart["QtySold"].mean()
-    fig2 = px.line(linechart, x = "ActualSaleDate", y=["QtySold","Pred"], labels = {"value": "Qty","SKU":"ProductID"},height=500, width = 1000)#,template="gridon",hover_data=[linechart["ProductID"],linechart[ "StoreID"]]
+    fig2 = px.line(linechart, x = "ActualSaleDate", y=["QtySold","Pred"], labels = {"value": "Qty","SKU":"ProductID"},height=500, width = 1000,color_discrete_map={"QtySold": "green", "Pred": "blue"})#,template="gridon",hover_data=[linechart["ProductID"],linechart[ "StoreID"]]
 
     # Adding mean lines to the chart
-    fig2.add_hline(y=mean_qty_sold, line_dash="dot", line_color="red", annotation_text=f'Mean QtySold: {mean_qty_sold:.2f}', annotation_position="bottom right")
+    fig2.add_hline(y=mean_qty_sold, line_dash="dot", line_color="#FFBF00", annotation_text=f'Mean QtySold: {mean_qty_sold:.2f}', annotation_position="bottom right")
     #fig2 = fig2.update_traces(hovertemplate=df["ProductID"])
     #st.plotly_chart(fig2,use_container_width=True)
     return fig2  
@@ -282,7 +282,7 @@ def visualize_sku_level():
         p_df2 =p_df1_sku[p_df1_sku["ProductID"].isin(SKU_filter)] #& (p_df1['Type']=='Test')
         accuracy = 100-((np.round(p_df2['WAPE'].unique()[0],2)))
         #st.write(p_df2)
-        st.write(f"Results displayed are {accuracy}% accurate")
+        #st.write(f"Results displayed are {accuracy}% accurate")
         chart = draw_linechart(p_df2)
         st.plotly_chart(chart,use_container_width=True)
 
@@ -316,71 +316,71 @@ def app(df_sku,df_store,Test_state):#,skudata_button_state,storedata_button_stat
     #st.write(st.session_state.Model_output_store)
     #st.session_state.skudata_button_state=skudata_button_state
     #st.session_state.storedata_button_state=storedata_button_state
-    if st.sidebar.button("Test") or Test_state:
-        if st.session_state.Model_output_sku is None and st.session_state.Model_output_store is None:
-            st.session_state.Test_button_state = True
-            t_cast_sku = test_data_sku(df_sku)
-            st.session_state.test_completed_sku = "True"
-            t_cast_store = test_data_store(df_store)
-            st.session_state.test_completed_store = "True"
+    #if st.button("Test") or Test_state:
+    if st.session_state.Model_output_sku is None and st.session_state.Model_output_store is None:
+        st.session_state.Test_button_state = True
+        t_cast_sku = test_data_sku(df_sku)
+        st.session_state.test_completed_sku = "True"
+        t_cast_store = test_data_store(df_store)
+        st.session_state.test_completed_store = "True"
 
+        f_cast_sku = t_cast_sku[(t_cast_sku['Type']=="Train") | (t_cast_sku['Type']=="Test")]
+        f_cast_store = t_cast_store[(t_cast_store['Type']=="Train") | (t_cast_store['Type']=="Test")]
+        #if st.session_state.skudata_button or st.session_state.storedata_button:
+        col1, col2 = st.columns((2))
+        with col1:
+            skudata_button = st.button("Store-SKU Level Predictions", key="skudata_button")
+            #st.session_state.skudata_button = True
+        with col2:
+            storedata_button = st.button("Store Level Predictions", key="storedata_button")
+            #st.session_state.storedata_button = True
+        if skudata_button or st.session_state.skudata_button_state:
+            m_numRows = f_cast_sku.shape[0]
+            st.header("Store-SKU Level Predictions")
+            st.write("Prediction at SKU level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
+            st.dataframe(f_cast_sku)#,height =(m_numRows + 1) * 35 + 3,hide_index=True            
+            st.session_state.Model_output_sku = t_cast_sku
+            st.session_state.skudata_button_state = True
+            st.session_state.storedata_button_state = False
+            visualize_sku_level()
+
+        if storedata_button or st.session_state.storedata_button_state:
+            st.session_state.skudata_button_state = False
+            st.session_state.button_click_count += 1
+            st.header("Store Level Predictions")
+            st.write("Prediction at Store level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
+            st.dataframe(f_cast_store)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
+            st.session_state.Model_output_store = t_cast_store
+            st.session_state.storedata_button_state = True
+            visualize_store_level()
+
+    else:
+        #if st.session_state.skudata_button or st.session_state.storedata_button:
+        col1, col2 = st.columns((2))
+        with col1:
+            skudata_button = st.button("Store-SKU Level Predictions", key="skudata_button")
+        with col2:
+            storedata_button = st.button("Store Level Predictions", key="storedata_button")
+        if skudata_button or st.session_state.skudata_button_state:
+            st.header("Store-SKU Level Predictions")
+            st.write("Prediction at SKU level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
+            t_cast_sku = st.session_state.Model_output_sku
+            #st.write(t_cast_sku['ProductID'].unique())
             f_cast_sku = t_cast_sku[(t_cast_sku['Type']=="Train") | (t_cast_sku['Type']=="Test")]
+            st.dataframe(f_cast_sku)#,hide_index=True
+            st.session_state.test_completed_sku = True
+            st.session_state.skudata_button_state = True
+            st.session_state.storedata_button_state = False
+            visualize_sku_level()
+
+        if storedata_button or st.session_state.storedata_button_state:
+            st.session_state.skudata_button_state = False
+            storedata_button
+            st.header("Store Level Predictions")
+            st.write("Prediction at Store level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
+            t_cast_store = st.session_state.Model_output_store
             f_cast_store = t_cast_store[(t_cast_store['Type']=="Train") | (t_cast_store['Type']=="Test")]
-            #if st.session_state.skudata_button or st.session_state.storedata_button:
-            col1, col2 = st.columns((2))
-            with col1:
-                skudata_button = st.button("Store-SKU Level Predictions", key="skudata_button")
-                #st.session_state.skudata_button = True
-            with col2:
-                storedata_button = st.button("Store Level Predictions", key="storedata_button")
-                #st.session_state.storedata_button = True
-            if skudata_button or st.session_state.skudata_button_state:
-                m_numRows = f_cast_sku.shape[0]
-                st.header("Store-SKU Level Predictions")
-                st.write("Prediction at SKU level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
-                st.dataframe(f_cast_sku)#,height =(m_numRows + 1) * 35 + 3,hide_index=True            
-                st.session_state.Model_output_sku = t_cast_sku
-                st.session_state.skudata_button_state = True
-                st.session_state.storedata_button_state = False
-                visualize_sku_level()
-
-            if storedata_button or st.session_state.storedata_button_state:
-                st.session_state.skudata_button_state = False
-                storedata_button
-                st.header("Store Level Predictions")
-                st.write("Prediction at Store level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
-                st.dataframe(f_cast_store)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
-                st.session_state.Model_output_store = t_cast_store
-                st.session_state.storedata_button_state = True
-                visualize_store_level()
-
-        else:
-            #if st.session_state.skudata_button or st.session_state.storedata_button:
-            col1, col2 = st.columns((2))
-            with col1:
-                skudata_button = st.button("Store-SKU Level Predictions", key="skudata_button")
-            with col2:
-                storedata_button = st.button("Store Level Predictions", key="storedata_button")
-            if skudata_button or st.session_state.skudata_button_state:
-                st.header("Store-SKU Level Predictions")
-                st.write("Prediction at SKU level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
-                t_cast_sku = st.session_state.Model_output_sku
-                #st.write(t_cast_sku['ProductID'].unique())
-                f_cast_sku = t_cast_sku[(t_cast_sku['Type']=="Train") | (t_cast_sku['Type']=="Test")]
-                st.dataframe(f_cast_sku)#,hide_index=True
-                st.session_state.test_completed_sku = True
-                st.session_state.skudata_button_state = True
-                st.session_state.storedata_button_state = False
-                visualize_sku_level()
-
-            if storedata_button or st.session_state.storedata_button_state:
-                st.session_state.skudata_button_state = False
-                storedata_button
-                st.header("Store Level Predictions")
-                st.write("Prediction at Store level is done by training the model on all except last 1 month data. Last 1 month of data is used to test the model")
-                t_cast_store = st.session_state.Model_output_store
-                f_cast_store = t_cast_store[(t_cast_store['Type']=="Train") | (t_cast_store['Type']=="Test")]
-                st.dataframe(f_cast_store)#,hide_index=True
-                st.session_state.test_completed_store = True
-                st.session_state.storedata_button_state = True
-                visualize_store_level()
+            st.dataframe(f_cast_store)#,hide_index=True
+            st.session_state.test_completed_store = True
+            st.session_state.storedata_button_state = True
+            visualize_store_level()

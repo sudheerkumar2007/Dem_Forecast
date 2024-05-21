@@ -26,23 +26,24 @@ def run():
     st.sidebar.subheader("Your dataset")
     file = st.sidebar.file_uploader("Upload your document here", type={"csv"})
 
-
     with st.sidebar:        
         app = option_menu(
-            menu_title='Process Flow',
-            options=['Preprocess','Dashboard','Test','Forecast'],#,'Chat'
+            menu_title='',
+            options=["Preprocess",'Test','Forecast'],#,'Preprocess','Dashboard','Chat'
             #menu_icon='chat-text-fill',
             default_index=0,
             styles={
-                "container": {"padding": "5!important","background-color":'grey'},
+                "container": {"padding": "!important","background-color":'grey'},
     "icon": {"color": "white", "font-size": "23px"}, 
     "nav-link": {"color":"white","font-size": "20px", "text-align": "left", "margin":"0px", "--hover-color": "blue"},
     "nav-link-selected": {"background-color": "#02ab21"},})
 
                 
     if app == "Preprocess":
+        #if st.sidebar.button("Process") or st.session_state.Process_state:
         home(file)
-    elif app == "Test":
+    
+    if app == "Test":
         if st.session_state.preprocess_completed:
             modelling.app(st.session_state['p_df_sku'],st.session_state['p_df_store'],st.session_state.Test_state)#,st.session_state.skudata_button_state,st.session_state.storedata_button_state)
             st.session_state.Test_state = True 
@@ -197,16 +198,13 @@ def fill_nans2(df, columns_to_fill):
     return df
 
 def home(file):
-    if "Process_state" not in st.session_state:
-        st.session_state.Process_state = False
+
     if "date1" not in st.session_state:
         st.session_state.date1 = None
     if "date2" not in st.session_state:
         st.session_state.date2 = None
     if "forecast_completed" not in st.session_state:
         st.session_state.forecast_completed = False
-    if "preprocess_completed" not in st.session_state:
-        st.session_state.preprocess_completed = False
     if "test_completed_store" not in st.session_state:
         st.session_state.test_completed_store = False
     if "test_completed_sku" not in st.session_state:
@@ -219,12 +217,17 @@ def home(file):
         st.session_state.skudata_button_state = False
     if "storedata_button_state" not in st.session_state:
         st.session_state.storedata_button_state = False
+        st.session_state.button_click_count = 0
     if "Test_state" not in st.session_state:
         st.session_state.Test_state = False        
+    if "Process_state" not in st.session_state:
+        st.session_state.Process_state = False
+    if "preprocess_completed" not in st.session_state:
+        st.session_state.preprocess_completed = False
 
-    if st.sidebar.button("Process") or st.session_state.Process_state:
-        if file is not None:
-            st.session_state.Process_state = True
+    #if st.button("Process") or st.session_state.Process_state:
+    if file is not None:
+        if not st.session_state.preprocess_completed:
             with st.spinner("Processing"):
                 # Read the data
                 df = pd.read_csv(file)
@@ -260,6 +263,26 @@ def home(file):
                         with st.spinner("Displaying"):
                             display_data(p_df_sku, st.session_state.date1, st.session_state.date2)
         else:
+            p_df_sku = st.session_state['p_df_sku']
+            p_df_store= st.session_state['p_df_store']
+            # Get min and max date
+            st.write("Select start and end dates to view Preprocessed sample data")
+            col1, col2 = st.columns((2))
+            startDate = pd.to_datetime(p_df_sku["ActualSaleDate"]).min()
+            endDate = pd.to_datetime(p_df_sku["ActualSaleDate"]).max()
+            with col1:
+                st.session_state.date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+
+            with col2:
+                st.session_state.date2 = pd.to_datetime(st.date_input("End Date", endDate))
+
+            if st.session_state.date1 is not None and st.session_state.date2 is not None:
+                display_data_button = st.button("Display Data", key="display_data_button")
+                # Displaying data
+                if display_data_button:
+                    with st.spinner("Displaying"):
+                        display_data(p_df_sku, st.session_state.date1, st.session_state.date2)
+    else:
             st.write("Please upload your file to Preprocess")
 
 if __name__ == '__main__':
