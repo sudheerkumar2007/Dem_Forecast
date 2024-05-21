@@ -233,6 +233,15 @@ def home(file):
                 df = pd.read_csv(file)
                 df["ActualSaleDate"] = pd.to_datetime(df["ActualSaleDate"],format='%Y-%m-%d')# '%Y-%m-%d'
                 df[['StoreID','ProductID']] = df[['StoreID','ProductID']].astype('int').astype('string')
+                #df_chk = copy.deepcopy(df)
+                df['str_sku_id'] = df['StoreID'] + '-' + df['ProductID']
+                df['year'] = df['ActualSaleDate'].dt.year
+                df['month'] = df['ActualSaleDate'].dt.month
+                sku_sale = df.groupby(['str_sku_id','QtySold','year','month'])['QtySold'].sum().reset_index(name='sku_sale')
+                #good_working_stores_cts = df_chk[['str_sku_id','QtySold','year','month']][(sku_sale['sku_sale']>0) & (sku_sale['year'] == 2022) & (sku_sale['month'] ==9)]
+                good_working_skus = sku_sale['str_sku_id'][(sku_sale['sku_sale']>5) & (sku_sale['year'] == 2022) & (sku_sale['month'] ==9)].drop_duplicates()
+                #df_cnew1 = df_cnew[df_cnew['StoreID'].isin(good_working_stores)]
+                df = df[df['str_sku_id'].isin(good_working_skus)].drop(columns = ['str_sku_id','year','month'])
                 
                 # Preprocess the dataframe
                 p_df_sku = process_data_SKU(df)
