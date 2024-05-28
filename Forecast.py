@@ -53,8 +53,8 @@ def app(df_sku,df_store):
             st.markdown("Here is the forecasted sale for next 7 days at store-sku level")
             st.dataframe(f_df_sku)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
             #st.session_state.f_op = f_cast
-            error = ((np.round(np.median(df_sku['WAPE']),2)))#.unique()[0]
-            st.write(f"Forecast is done at {error}% error rate")
+            #error = ((np.round(np.median(df_sku['WAPE']),2)))#.unique()[0]
+            #st.write(f"Forecast is done at {error}% error rate")
 
         if storeforecast_button:
             #t_cast_store = st.session_state.Model_output_store
@@ -63,5 +63,5 @@ def app(df_sku,df_store):
             st.markdown("Here is the forecasted sale for next 7 days at store level")
             st.dataframe(f_df_store)#,height =(m_numRows + 1) * 35 + 3,hide_index=True
             #st.session_state.f_op = f_cast
-            error = ((np.round(np.median(df_store['WAPE']),2)))#.unique()[0]
-            st.write(f"Forecast is done at {error}% error rate")
+            #error = ((np.round(np.median(df_store['WAPE']),2)))#.unique()[0]
+            #st.write(f"Forecast is done at {error}% error rate")

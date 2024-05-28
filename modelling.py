@@ -53,7 +53,7 @@ def model_fit_SKU(chk,end_date,forecast_date):
     #columns_to_fill = ['VendorID', 'VendorName', 'RetailerID', 'RetailerName']
     #print(np.unique(chk['str_sku_id']))
     #chk['Sales_7_Days_Lag'] = chk['proportion_sale'].shift(7)
-    chk['Sales_7_Days_Lag'] = chk['QtySold'].shift(7)
+    chk['Sales_7_Days_Lag'] = chk['QtySold'].shift(14)
     #chk['Inv_Avail_7_Days_Lag'] = chk['Inv_Avail'].shift(7)
     cols_selected = ['QtySold', 'Day_of_week_Friday', 'Day_of_week_Monday', 'Day_of_week_Saturday','Day_of_week_Sunday', 'Day_of_week_Thursday', 'Day_of_week_Tuesday','Day_of_week_Wednesday',  'Holiday_0', 'Holiday_1','Season_Autumn', 'Season_Spring', 'Season_Summer', 'Season_Winter','Sales_7_Days_Lag']#,'Inv_Avail_7_Days_Lag','Inv_Avail','Previousday_EOD_Inv','Inv_morn','tavg', 'wspd',
     #,'Inv_EOD_7_Days_Lag','Morn_Inv_7_Days_Lag'
@@ -115,7 +115,7 @@ def model_fit_store(chk,end_date,forecast_date):
     #columns_to_fill = ['VendorID', 'VendorName', 'RetailerID', 'RetailerName']
     #print(np.unique(chk['str_sku_id']))
     #chk['Sales_7_Days_Lag'] = chk['proportion_sale'].shift(7)
-    chk['Sales_7_Days_Lag'] = chk['QtySold'].shift(7)
+    chk['Sales_7_Days_Lag'] = chk['QtySold'].shift(14)
     cols_selected = ['QtySold', 'Day_of_week_Friday', 'Day_of_week_Monday', 'Day_of_week_Saturday','Day_of_week_Sunday', 'Day_of_week_Thursday', 'Day_of_week_Tuesday','Day_of_week_Wednesday',  'Holiday_0', 'Holiday_1','Season_Autumn', 'Season_Spring', 'Season_Summer', 'Season_Winter','Sales_7_Days_Lag']#,'Inv_Avail',,'Inv_Avail_7_Days_Lag','Previousday_EOD_Inv','Inv_morn','tavg', 'wspd',
     #,'Inv_EOD_7_Days_Lag','Morn_Inv_7_Days_Lag'
     cols_to_drop = list(chk.columns[chk.isna().all()]) # finding columns that have all Nan values
@@ -239,6 +239,7 @@ def test_data_store(df):
         #Store_output = pd.DataFrame(Store_output[0])
         st.session_state.Model_output_store = Store_output
         return Store_output
+
 def draw_linechart(df):
     linechart = pd.DataFrame(df.groupby(df["ActualSaleDate"])[["QtySold","Pred"]].sum()).reset_index()
     mean_qty_sold = linechart["QtySold"].mean()
@@ -273,15 +274,17 @@ def visualize_sku_level():
     
     if not SKU_filter:
         p_df2 = p_df1_sku.copy()
-        accuracy = 100-((np.round(p_df2['WAPE'].unique()[0],2)))
-        #st.write(f"Results displayed are {accuracy}% accurate")
+        #accuracy = ((np.round(p_df2['WAPE'].unique()[0],2)))
+        error = ((np.round(np.median(p_df2['WAPE']),2)))
+        st.write(f"Results displayed are at {error}% error rate")
         chart = draw_linechart(p_df2)
         st.plotly_chart(chart,use_container_width=True)
     else:
         p_df2 =p_df1_sku[p_df1_sku["ProductID"].isin(SKU_filter)] #& (p_df1['Type']=='Test')
-        accuracy = 100-((np.round(p_df2['WAPE'].unique()[0],2)))
+        #accuracy = ((np.round(p_df2['WAPE'].unique()[0],2)))
+        error = ((np.round(np.median(p_df2['WAPE']),2)))
         #st.write(p_df2)
-        #st.write(f"Results displayed are {accuracy}% accurate")
+        st.write(f"Results displayed are at {error}% error rate")
         chart = draw_linechart(p_df2)
         st.plotly_chart(chart,use_container_width=True)
 
@@ -299,14 +302,14 @@ def visualize_store_level():
         p_df1_store = f_cast_store[f_cast_store['Type']=="Test"].copy()
         chart = draw_linechart(p_df1_store)
         st.plotly_chart(chart,use_container_width=True)
-        #accuracy = 100-((np.round(p_df1_store['MAPE'].unique()[0],2))*100)
-        #st.write(f"Results displayed are {accuracy}% accurate")
+        error = ((np.round(np.median(p_df1_store['WAPE']),2)))
+        st.write(f"Results displayed are {error}% error rate")
     else:
         p_df1_store =f_cast_store[(f_cast_store["StoreID"].isin(Store_filter1)) & (f_cast_store['Type']=="Test")]
         chart = draw_linechart(p_df1_store)
         st.plotly_chart(chart,use_container_width=True)
-        #accuracy = 100-((np.round(p_df1_store['MAPE'].unique()[0],2))*100)
-        #st.write(f"Results displayed are {accuracy}% accurate")
+        error = ((np.round(np.median(p_df1_store['WAPE']),2)))
+        st.write(f"Results displayed are {error}% error rate")
 
 #def visualize_store_level():
 def app(df_sku,df_store,Test_state):#,skudata_button_state,storedata_button_state):
