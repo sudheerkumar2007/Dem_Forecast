@@ -276,17 +276,17 @@ def visualize_sku_level():
         p_df2 = p_df1_sku.copy()
         #accuracy = ((np.round(p_df2['WAPE'].unique()[0],2)))
         error = ((np.round(np.median(p_df2['WAPE']),2)))
-        st.write(f"Results displayed are at {error}% error rate")
         chart = draw_linechart(p_df2)
         st.plotly_chart(chart,use_container_width=True)
+        st.write(f"Error rate (variation of predicted to actual sales): {error}%")
     else:
         p_df2 =p_df1_sku[p_df1_sku["ProductID"].isin(SKU_filter)] #& (p_df1['Type']=='Test')
         #accuracy = ((np.round(p_df2['WAPE'].unique()[0],2)))
         error = ((np.round(np.median(p_df2['WAPE']),2)))
         #st.write(p_df2)
-        st.write(f"Results displayed are at {error}% error rate")
         chart = draw_linechart(p_df2)
         st.plotly_chart(chart,use_container_width=True)
+        st.write(f"Error rate (variation of predicted to actual sales): {error}%")
 
 def visualize_store_level():
     #st.session_state.visualize = True
@@ -303,13 +303,13 @@ def visualize_store_level():
         chart = draw_linechart(p_df1_store)
         st.plotly_chart(chart,use_container_width=True)
         error = ((np.round(np.median(p_df1_store['WAPE']),2)))
-        st.write(f"Results displayed are {error}% error rate")
+        st.write(f"Error rate (variation of predicted to actual sales): {error}%")
     else:
         p_df1_store =f_cast_store[(f_cast_store["StoreID"].isin(Store_filter1)) & (f_cast_store['Type']=="Test")]
         chart = draw_linechart(p_df1_store)
         st.plotly_chart(chart,use_container_width=True)
         error = ((np.round(np.median(p_df1_store['WAPE']),2)))
-        st.write(f"Results displayed are {error}% error rate")
+        st.write(f"Error rate (variation of predicted to actual sales): {error}%")
 
 #def visualize_store_level():
 def app(df_sku,df_store,Test_state):#,skudata_button_state,storedata_button_state):
