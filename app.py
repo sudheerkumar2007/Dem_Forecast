@@ -15,6 +15,8 @@ import warnings
 warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Demand Forecasting app",page_icon=":chart_with_upwards_trend:")
+st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
+st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True) 
 st.title(" :chart_with_upwards_trend: Business Demand Forecast")
 st.markdown('<style>div.block-container{padding-top:1rem;}</style>',unsafe_allow_html=True)
 
